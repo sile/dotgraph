@@ -1,4 +1,7 @@
+pub use node::NodeShape;
+
 pub mod graph;
+pub mod node;
 
 #[cfg(test)]
 mod tests {

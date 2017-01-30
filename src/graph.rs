@@ -1,5 +1,7 @@
 use std::io::{self, Write};
 
+use node;
+
 #[derive(Debug)]
 pub struct Graph {
     name: String,
@@ -57,16 +59,22 @@ impl Default for GraphProperties {
 pub struct Node {
     id: String,
     label: Option<String>,
+    shape: node::NodeShape,
 }
 impl Node {
     pub fn new<T: Into<String>>(id: T) -> Self {
         Node {
             id: id.into(),
             label: None,
+            shape: node::NodeShape::default(),
         }
     }
     pub fn with_label(mut self, label: String) -> Self {
         self.label = Some(label);
+        self
+    }
+    pub fn shape(mut self, shape: node::NodeShape) -> Self {
+        self.shape = shape;
         self
     }
     pub fn set_lable<T: Into<String>>(&mut self, label: T) -> &mut Self {
@@ -75,8 +83,14 @@ impl Node {
     }
     fn write<W: Write>(&self, writer: &mut W) -> io::Result<()> {
         write!(writer, "  {:?}[", self.id)?;
+        let mut delim = "";
         if let Some(ref label) = self.label {
-            write!(writer, "label={:?}", label)?;
+            write!(writer, "{}label={:?}", delim, label)?;
+            delim = ", ";
+        }
+        if node::NodeShape::default() != self.shape {
+            write!(writer, "{}shape={}", delim, self.shape)?;
+            // delim = ", ";
         }
         writeln!(writer, "];")?;
         Ok(())
